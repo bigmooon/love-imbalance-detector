@@ -66,12 +66,11 @@ def calc_participation_ratio(df, me):
   char_me = char_lengths[df["User"] == me].sum()
   char_partner = char_lengths[df["User"] == partner].sum()
   char_total = char_me + char_partner
-  
   return {
   "message_count_ratio": len(df_me) / total_messages,
   "char_count_ratio": char_me / char_total if char_total > 0 else 0.5,
-  "avg_length_me": df_me["Message"].str.len().mean() if len(df_me) > 0 else 0.0,
-  "avg_length_partner": df_partner["Message"].str.len().mean() if len(df_partner) > 0 else 0.0,
+  "avg_length_me": char_lengths[df["User"] == me].mean() if len(df_me) > 0 else 0.0,
+  "avg_length_partner": char_lengths[df["User"] == partner].mean() if len(df_partner) > 0 else 0.0,
   }
   
   
