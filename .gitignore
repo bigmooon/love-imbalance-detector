@@ -1,0 +1,6 @@
+__pycache__
+tests/
+data/
+.venv/
+06_huggingface_pipeline.egg-info/
+.DS_Store
