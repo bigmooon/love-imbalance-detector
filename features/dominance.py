@@ -1,6 +1,6 @@
 import pandas as pd
 from models.emotion_labels import EMOTION_GROUPS
-from moddels.hugging_face import classify_emotions
+from models.hugging_face import classify_emotions
 
 def _get_partner(df, me):
   users = df["User"].unique().tolist()
@@ -14,12 +14,12 @@ def calc_start_ratio(df, me):
   """
   세션별 선톡 비율 계산
   """
-  df_start = df.groupby("Session").first()
+  df_start = df.groupby("Session_ID").first()
   total_sessions = len(df_start)
   if total_sessions == 0:
     return 0.0
-  
-  my_starts = df_start[df_start["User"] == me].sum()
+
+  my_starts = (df_start["User"] == me).sum()
   return my_starts / total_sessions
 
 
@@ -27,12 +27,12 @@ def calc_end_ratio(df, me):
   """
   세션별 마지막 발화자 비율 계산
   """
-  df_end = df.groupby("Session").last()
+  df_end = df.groupby("Session_ID").last()
   total_sessions = len(df_end)
   if total_sessions == 0:
     return 0.0
-  
-  my_ends = df_end[df_end["User"] == me].sum()
+
+  my_ends = (df_end["User"] == me).sum()
   return my_ends / total_sessions
 
 
@@ -123,8 +123,8 @@ def compute_dominance_features(metrics, weights=None):
   DEFAULT_WEIGHTS = {
     "initiation_ratio": 0.20,
     "ending_ratio": 0.10,
-    "msg_count_ratio": 0.20,
-    "char_total_ratio": 0.15,
+    "message_count_ratio": 0.20,
+    "char_count_ratio": 0.15,
     "joy_gap": 0.15,
     "negative_gap": 0.20,
   }
