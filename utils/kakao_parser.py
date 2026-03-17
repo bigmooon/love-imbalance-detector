@@ -1,5 +1,5 @@
 import pandas as pd
-from text_utils import is_system_message, is_non_text, clean_text
+from utils.text_utils import is_system_message, is_non_text, clean_text
 
 SESSION_END_MINUTES = 30
 MAX_USERS = 2
