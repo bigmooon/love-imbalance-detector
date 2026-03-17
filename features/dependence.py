@@ -120,19 +120,20 @@ def _extract_qa_pairs(df, me, partner):
   Returns:
     (my_answer_pairs, partner_answer_pairs)
   """
-  messages = df["Message"].tolist()
-  users = df["User"].tolist()
+  messages = df["Message"].to_numpy()
+  users = df["User"].to_numpy()
+  n = len(messages)
+
+  is_q = np.array([is_question(m) for m in messages])
+  question_indices = np.where(is_q)[0]
 
   my_answer_pairs = []
   partner_answer_pairs = []
 
-  for i in range(len(messages) - 1):
-    if not is_question(messages[i]):
-      continue
-
+  for i in question_indices:
     questioner = users[i]
     # 질문자와 다른 화자의 다음 메시지를 찾는다
-    for j in range(i + 1, min(i + 4, len(messages))):
+    for j in range(i + 1, min(i + 4, n)):
       if users[j] != questioner:
         pair = (messages[i], messages[j])
         if questioner == partner:
@@ -155,15 +156,19 @@ def _calc_pair_similarity(pairs, sbert_model):
 
   questions = [q for q, _ in pairs]
   answers = [a for _, a in pairs]
+  n = len(questions)
 
-  q_vectors = encode_sentences(questions, sbert_model)
-  a_vectors = encode_sentences(answers, sbert_model)
+  # 질문 + 답변을 한 번에 인코딩
+  all_vectors = encode_sentences(questions + answers, sbert_model)
+  q_vectors = all_vectors[:n]
+  a_vectors = all_vectors[n:]
 
-  # 쌍별 코사인 유사도: 대각선 요소만 필요 (i번 질문 ↔ i번 답변)
-  similarities = []
-  for q_vec, a_vec in zip(q_vectors, a_vectors):
-    sim = cosine_similarity([q_vec], [a_vec])[0][0]
-    similarities.append(sim)
+  # 벡터화된 코사인 유사도: L2 정규화 후 행별 내적
+  norms_q = np.linalg.norm(q_vectors, axis=1, keepdims=True)
+  norms_a = np.linalg.norm(a_vectors, axis=1, keepdims=True)
+  q_norm = q_vectors / np.maximum(norms_q, 1e-9)
+  a_norm = a_vectors / np.maximum(norms_a, 1e-9)
+  similarities = (q_norm * a_norm).sum(axis=1)
 
   return float(np.mean(similarities))
 
