@@ -18,6 +18,14 @@ SYSTEM_MESSAGE_KEYWORDS = [
 # TODO: 이모티콘은 추후 앞뒤 맥락 파악 후 감정 분석에 활용할 수 있도록
 NONE_TEXT_PLACEHOLDERS = ["사진", "동영상", "이모티콘", "음성 메시지", "파일", "지도", "연락처", "일정", "투표"]
 
+_QUESTION_ENDINGS = re.compile(
+  r"("
+  r"[가나니까랴려냐는걸건데할임감슴습]\?|"  # 어미 + 물음표
+  r"\?\s*$|"                                  # 단순 물음표 종결
+  r"[가나니까랴려냐]\s*$|"                     # 물음표 없는 의문형 어미
+  r"[뭐뭘무엇왜어디누구언제어떻얼마몇].*$"  # 의문사가 포함된 문장
+  r")"
+)
 
 def is_system_message(text):
   return any(keyword in text for keyword in SYSTEM_MESSAGE_KEYWORDS)
@@ -43,3 +51,18 @@ def clean_text(text):
   if not isinstance(text, str):
     return ""
   return text.strip()
+  
+def is_question(text):
+  """
+  텍스트가 질문인지 여부 판단
+  - 물음표로 끝나거나 의문형 어미로 끝나는 경우
+  - 의문사가 포함된 경우
+  """
+  if not text:
+    return False
+ 
+  stripped = text.strip()
+  if "?" in stripped:
+    return True
+ 
+  return bool(_QUESTION_ENDINGS.search(stripped))
