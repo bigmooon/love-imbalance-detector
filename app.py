@@ -187,7 +187,8 @@ def render_loading():
 
     # Step 4: 임베딩
     _step(3)
-    qa_gap = calc_qa_sincerity(df_filtered, me, sbert_model)
+    qa_result = calc_qa_sincerity(df_filtered, me, sbert_model)
+    qa_gap = qa_result["gap"]
 
     # Step 5: 지표 계산
     _step(4)
@@ -234,7 +235,7 @@ def render_loading():
       "reply_time": reply_time,
       "double_text": double_text,
       "double_text_partner": double_text_partner,
-      "qa_gap": qa_gap,
+      "qa_sincerity": qa_result,
       "participation": participation,
       "fig_radar": fig_radar,
       "fig_timeline": fig_timeline,
@@ -259,6 +260,17 @@ def _interpret(value, me, partner):
   if value <= 0.35:
     return f"🔵 **{partner}** 쪽이 우위예요"
   return "🟢 균형적이에요"
+
+
+def _format_reply_time(seconds: float) -> str:
+  """초 단위 답장 시간을 읽기 쉬운 문자열로 변환. 60초 미만이면 초 단위 표시."""
+  if seconds < 60:
+    return f"{seconds:.0f}초"
+  minutes = seconds / 60
+  if minutes < 60:
+    return f"{minutes:.1f}분"
+  hours = minutes / 60
+  return f"{hours:.1f}시간"
 
 
 def render_result():
@@ -307,15 +319,83 @@ def render_result():
     c4.metric(f"{partner} 평균 길이", f"{p['avg_length_partner']:.0f}자")
 
   with tab2:
+    emotion_result = r["emotion_result"]
+    me_emotions = emotion_result.get("me", {})
+    partner_emotions = emotion_result.get("partner", {})
+    neg_gap = emotion_result["negative_gap"]
+    joy_gap = emotion_result["joy_gap"]
+
+    # 상단 알림 배너
+    if neg_gap > 0.1:
+      st.markdown(f"""
+        <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:12px;
+                    padding:16px 20px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px;">
+          <span style="font-size:20px;line-height:1.5;">⚠️</span>
+          <div>
+            <p style="margin:0 0 4px;font-weight:600;color:#c53030;">부정 감정 불균형 감지</p>
+            <p style="margin:0;color:#742a2a;font-size:14px;">{me}님이 부정적인 감정을 더 많이 표현하고 있어요. 대화에서 더 많은 공감과 이해가 필요할 수 있습니다.</p>
+          </div>
+        </div>
+      """, unsafe_allow_html=True)
+
+    # 감정 분포 비교 차트
+    st.markdown("**감정 분포 비교**")
     st.plotly_chart(r["fig_emotion"], width="stretch")
-    joy_gap = r["emotion_result"]["joy_gap"]
-    neg_gap = r["emotion_result"]["negative_gap"]
-    c1, c2 = st.columns(2)
-    c1.metric("기쁨 감정 차이 (나 - 상대)", f"{joy_gap:+.2f}", help="양수 = 내가 더 긍정적")
-    c2.metric("부정 감정 차이 (나 - 상대)", f"{neg_gap:+.2f}", help="양수 = 내가 부정 감정이 더 많음")
+
+    # 감정별 상세 카드 (3열 x 2행)
+    EMOTION_DETAIL = [
+      ("joy",       "기쁨",  "#FFD700"),
+      ("anger",     "분노",  "#FF4B4B"),
+      ("sadness",   "슬픔",  "#6495ED"),
+      ("anxiety",   "불안",  "#FFA500"),
+      ("hurt",      "상처",  "#9370DB"),
+      ("embarrass", "당황",  "#20B2AA"),
+    ]
+    for row in range(2):
+      cols = st.columns(3)
+      for col_idx in range(3):
+        group, label, color = EMOTION_DETAIL[row * 3 + col_idx]
+        me_pct = me_emotions.get(group, 0.0)
+        partner_pct = partner_emotions.get(group, 0.0)
+        with cols[col_idx]:
+          st.markdown(f"""
+            <div style="padding:16px 0 8px;">
+              <p style="margin:0 0 10px;font-weight:600;display:flex;align-items:center;gap:8px;">
+                <span style="width:10px;height:10px;border-radius:50%;
+                             background:{color};display:inline-block;flex-shrink:0;"></span>
+                {label}
+              </p>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="color:#555;font-size:14px;">{me}</span>
+                <span style="color:#6366f1;font-weight:700;font-size:14px;">{me_pct:.0%}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#555;font-size:14px;">{partner}</span>
+                <span style="color:#f43f5e;font-weight:700;font-size:14px;">{partner_pct:.0%}</span>
+              </div>
+            </div>
+          """, unsafe_allow_html=True)
+      if row == 0:
+        st.divider()
+
+    # 하단 긍정 감정 요약 박스
+    both_joy_high = me_emotions.get("joy", 0) > 0.3 and partner_emotions.get("joy", 0) > 0.3
+    if both_joy_high or joy_gap > -0.1:
+      st.markdown(f"""
+        <div style="background:#f0fff4;border:1px solid #c6f6d5;border-radius:12px;
+                    padding:16px 20px;margin-top:8px;display:flex;align-items:flex-start;gap:12px;">
+          <span style="font-size:20px;">😊</span>
+          <div>
+            <p style="margin:0 0 4px;font-weight:600;color:#276749;">긍정 감정 분석</p>
+            <p style="margin:0;color:#276749;font-size:14px;">두 분 모두 기쁨의 감정을 가장 많이 표현하고 있어요. 전반적으로 긍정적인 대화가 이루어지고 있습니다.</p>
+          </div>
+        </div>
+      """, unsafe_allow_html=True)
 
   with tab3:
     rt = r["reply_time"]
+    me_reply_str = _format_reply_time(rt["partner_to_me_median_sec"])
+    partner_reply_str = _format_reply_time(rt["me_to_partner_median_sec"])
     me_reply_min = rt["partner_to_me_median_sec"] / 60
     partner_reply_min = rt["me_to_partner_median_sec"] / 60
 
@@ -327,7 +407,7 @@ def render_result():
                     border-radius: 16px; padding: 24px; margin-bottom: 8px;">
           <p style="color: #7986cb; margin: 0 0 8px; font-size: 14px;">⏱ 평균 답장 시간</p>
           <p style="color: #3949ab; margin: 0 0 4px; font-size: 40px; font-weight: 700; line-height: 1;">
-            {me_reply_min:.1f}분
+            {me_reply_str}
           </p>
           <p style="color: #888; margin: 0; font-size: 13px;">{me}님의 답장 속도</p>
         </div>
@@ -338,7 +418,7 @@ def render_result():
                     border-radius: 16px; padding: 24px; margin-bottom: 8px;">
           <p style="color: #e91e63; margin: 0 0 8px; font-size: 14px;">⏱ 평균 답장 시간</p>
           <p style="color: #c2185b; margin: 0 0 4px; font-size: 40px; font-weight: 700; line-height: 1;">
-            {partner_reply_min:.1f}분
+            {partner_reply_str}
           </p>
           <p style="color: #888; margin: 0; font-size: 13px;">{partner}님의 답장 속도</p>
         </div>
@@ -361,7 +441,7 @@ def render_result():
         insights = [
           f"**{faster}**님은 대체로 빠르고 일관된 답장 패턴을 보입니다",
           f"**{slower}**님은 답장 시간의 편차가 크며, 상황에 따라 응답 속도가 달라집니다",
-          f"상대가 답장까지 평균 {partner_reply_min:.1f}분 소요됩니다",
+          f"상대가 답장까지 평균 {partner_reply_str} 소요됩니다",
         ]
         for insight in insights:
           st.markdown(f"- {insight}")
@@ -422,14 +502,80 @@ def render_result():
       """, unsafe_allow_html=True)
 
   with tab4:
-    qa = r["qa_gap"]
-    st.metric("QA 성의도 차이 (나 - 상대)", f"{qa:+.3f}")
-    if qa > 0.1:
-      st.success(f"💝 **{me}**가 질문에 더 성의 있게 답변하고 있어요. (의존도 신호)")
-    elif qa < -0.1:
-      st.warning(f"😅 **{partner}**가 질문에 더 성의 있게 답변하고 있어요.")
+    qa_sincerity = r["qa_sincerity"]
+    all_pairs = qa_sincerity.get("all_pairs", [])
+    avg_sincerity = qa_sincerity.get("avg_sincerity", 0.5)
+    avg_pct = int(avg_sincerity * 100)
+    bar_width = max(5, min(95, avg_pct))
+
+    # 상단 AI 성의도 분석 카드
+    st.markdown(f"""
+      <div style="background:#f5f3ff;border-radius:12px;padding:20px 24px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <span style="font-size:22px;">🧠</span>
+          <span style="font-size:17px;font-weight:700;">AI 성의도 분석</span>
+        </div>
+        <p style="margin:0 0 14px;color:#7c3aed;font-size:14px;">코사인 유사도를 기반으로 질문에 대한 답변의 성의도를 분석합니다.</p>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:14px;color:#555;white-space:nowrap;">평균 유사도 점수</span>
+          <div style="flex:1;background:#e9d5ff;border-radius:99px;height:10px;">
+            <div style="background:#7c3aed;width:{bar_width}%;height:10px;border-radius:99px;"></div>
+          </div>
+          <span style="font-size:18px;font-weight:700;color:#7c3aed;">{avg_pct}%</span>
+        </div>
+      </div>
+    """, unsafe_allow_html=True)
+
+    # QA 쌍 카드 (성의도 낮은 순 최대 10개)
+    if not all_pairs:
+      st.info("💫 분석할 질문-답변 쌍이 충분하지 않습니다.")
     else:
-      st.info("💫 둘 다 비슷한 성의로 답변하고 있어요.")
+      for pair in all_pairs[:10]:
+        score = pair["score"]
+        score_pct = int(score * 100)
+        bar_w = max(5, min(95, score_pct))
+
+        if score < 0.4:
+          label, bar_color, bar_bg = "낮은 성의도", "#f59e0b", "#fef3c7"
+        elif score > 0.65:
+          label, bar_color, bar_bg = "높은 성의도", "#10b981", "#d1fae5"
+        else:
+          label, bar_color, bar_bg = "보통 성의도", "#6366f1", "#ede9fe"
+
+        q_color = "#6366f1"
+        a_color = "#f43f5e"
+
+        st.markdown(f"""
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:12px;
+                      padding:20px 24px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+              <span style="font-size:16px;">💬</span>
+              <span style="font-size:15px;font-weight:600;">{pair['question']}</span>
+            </div>
+            <div style="display:flex;gap:16px;margin-bottom:14px;">
+              <div style="flex:1;">
+                <span style="color:{q_color};font-size:13px;font-weight:600;">{pair['questioner']}</span>
+                <div style="background:#f5f3ff;border-radius:12px;padding:10px 14px;margin-top:6px;
+                            font-size:14px;line-height:1.5;">{pair['question']}</div>
+              </div>
+              <div style="flex:1;text-align:right;">
+                <span style="color:{a_color};font-size:13px;font-weight:600;">{pair['answerer']}</span>
+                <div style="background:#f9fafb;border-radius:12px;padding:10px 14px;margin-top:6px;
+                            font-size:14px;line-height:1.5;display:inline-block;text-align:left;">{pair['answer']}</div>
+              </div>
+            </div>
+            <div style="background:{bar_bg};border-radius:8px;padding:10px 14px;
+                        display:flex;align-items:center;gap:10px;">
+              <span style="color:#ef4444;font-size:16px;">⊗</span>
+              <div style="flex:1;background:#e5e7eb;border-radius:99px;height:8px;">
+                <div style="background:{bar_color};width:{bar_w}%;height:8px;border-radius:99px;"></div>
+              </div>
+              <span style="font-size:15px;font-weight:700;color:{bar_color};">{score_pct}%</span>
+              <span style="font-size:13px;color:#666;">{label}</span>
+            </div>
+          </div>
+        """, unsafe_allow_html=True)
+
     st.caption("코사인 유사도 기반 측정 | 질문-답변 쌍의 의미적 연관도를 측정합니다")
 
   st.divider()
