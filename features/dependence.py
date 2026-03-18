@@ -104,10 +104,34 @@ def calc_qa_sincerity(df, me, sbert_model):
 
   # 쌍이 너무 적으면 신뢰도 낮으므로 중립값 반환
   MIN_PAIRS = 5
-  my_sincerity = _calc_pair_similarity(my_answer_pairs, sbert_model) if len(my_answer_pairs) >= MIN_PAIRS else 0.5
-  partner_sincerity = _calc_pair_similarity(partner_answer_pairs, sbert_model) if len(partner_answer_pairs) >= MIN_PAIRS else 0.5
+  if len(my_answer_pairs) >= MIN_PAIRS:
+    my_sincerity, my_scores = _calc_pair_similarity(my_answer_pairs, sbert_model)
+  else:
+    my_sincerity, my_scores = 0.5, []
 
-  return float(my_sincerity - partner_sincerity)
+  if len(partner_answer_pairs) >= MIN_PAIRS:
+    partner_sincerity, partner_scores = _calc_pair_similarity(partner_answer_pairs, sbert_model)
+  else:
+    partner_sincerity, partner_scores = 0.5, []
+
+  # 점수와 쌍을 묶어서 반환
+  my_pairs_scored = [
+    {"questioner": q, "question": qt, "answerer": a, "answer": at, "score": s}
+    for (q, qt, a, at), s in zip(my_answer_pairs, my_scores)
+  ]
+  partner_pairs_scored = [
+    {"questioner": q, "question": qt, "answerer": a, "answer": at, "score": s}
+    for (q, qt, a, at), s in zip(partner_answer_pairs, partner_scores)
+  ]
+  all_pairs = sorted(my_pairs_scored + partner_pairs_scored, key=lambda x: x["score"])
+
+  return {
+    "gap": float(my_sincerity - partner_sincerity),
+    "my_sincerity": float(my_sincerity),
+    "partner_sincerity": float(partner_sincerity),
+    "avg_sincerity": float((my_sincerity + partner_sincerity) / 2),
+    "all_pairs": all_pairs,
+  }
 
 
 def _extract_qa_pairs(df, me, partner):
@@ -119,6 +143,7 @@ def _extract_qa_pairs(df, me, partner):
 
   Returns:
     (my_answer_pairs, partner_answer_pairs)
+    각 pair = (questioner, question, answerer, answer)
   """
   messages = df["Message"].to_numpy()
   users = df["User"].to_numpy()
@@ -135,7 +160,7 @@ def _extract_qa_pairs(df, me, partner):
     # 질문자와 다른 화자의 다음 메시지를 찾는다
     for j in range(i + 1, min(i + 4, n)):
       if users[j] != questioner:
-        pair = (messages[i], messages[j])
+        pair = (questioner, messages[i], users[j], messages[j])
         if questioner == partner:
           my_answer_pairs.append(pair)
         else:
@@ -147,15 +172,18 @@ def _extract_qa_pairs(df, me, partner):
 
 def _calc_pair_similarity(pairs, sbert_model):
   """
-  (question, answer) 쌍 리스트의 평균 코사인 유사도 계산
+  (questioner, question, answerer, answer) 쌍 리스트의 평균 코사인 유사도 계산.
+
+  Returns:
+    (mean_similarity, per_pair_scores)
   """
   from models.hugging_face import encode_sentences
 
   if not pairs:
-    return 0.5
+    return 0.5, []
 
-  questions = [q for q, _ in pairs]
-  answers = [a for _, a in pairs]
+  questions = [q for _, q, _, _ in pairs]
+  answers = [a for _, _, _, a in pairs]
   n = len(questions)
 
   # 질문 + 답변을 한 번에 인코딩
@@ -170,7 +198,7 @@ def _calc_pair_similarity(pairs, sbert_model):
   a_norm = a_vectors / np.maximum(norms_a, 1e-9)
   similarities = (q_norm * a_norm).sum(axis=1)
 
-  return float(np.mean(similarities))
+  return float(np.mean(similarities)), similarities.tolist()
 
 
 def compute_dependence_index(metrics, weights=None):
