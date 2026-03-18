@@ -168,8 +168,6 @@ def create_reply_time_chart(df, speaker_a):
 
 def create_emotion_chart(emotion_results, speaker_a, speaker_b):
   """
-  화자별 감정 분포를 stacked bar chart로 시각화.
-
   Args:
     emotion_results: calc_emotion_dominance() 반환값.
                      {"me": {group: ratio}, "partner": {group: ratio}, ...}
@@ -181,16 +179,21 @@ def create_emotion_chart(emotion_results, speaker_a, speaker_b):
   for group, label in EMOTION_GROUP_LABELS.items():
     fig.add_trace(go.Bar(
       name=label,
-      x=[speaker_a, speaker_b],
-      y=[me_data.get(group, 0.0), partner_data.get(group, 0.0)],
+      y=[speaker_a, speaker_b],
+      x=[me_data.get(group, 0.0) * 100, partner_data.get(group, 0.0) * 100],
+      orientation="h",
       marker_color=EMOTION_COLORS.get(group, "#AAAAAA"),
     ))
 
   fig.update_layout(
     barmode="stack",
-    title="화자별 감정 분포",
-    yaxis_title="비율",
-    yaxis=dict(range=[0, 1]),
+    xaxis=dict(range=[0, 100], showgrid=True, gridcolor="#f0f0f0"),
+    yaxis=dict(showgrid=False),
+    plot_bgcolor="white",
+    paper_bgcolor="white",
+    legend=dict(orientation="h", y=-0.35, x=0.5, xanchor="center"),
+    height=180,
+    margin=dict(l=10, r=10, t=10, b=70),
   )
   return fig
 
