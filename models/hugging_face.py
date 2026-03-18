@@ -18,6 +18,8 @@ def load_emotion_classifier():
     "text-classification",
     model=ACTIVE_PRESET,
     top_k=1,
+    truncation=True,
+    max_length=512,
   )
 
 

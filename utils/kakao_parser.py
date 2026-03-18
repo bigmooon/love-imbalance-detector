@@ -1,10 +1,12 @@
 import pandas as pd
+import streamlit as st
 from utils.text_utils import is_system_message, is_non_text, clean_text
 
 SESSION_END_MINUTES = 30
 MAX_USERS = 2
 BOT = ["플레이봇"]
 
+@st.cache_data(show_spinner=False)
 def parse_kakao_chat(file_path):
   df = pd.read_csv(file_path, header=0, dtype=str, keep_default_na=False, encoding="utf-8-sig")
   

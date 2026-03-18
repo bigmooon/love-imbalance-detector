@@ -18,6 +18,10 @@ SYSTEM_MESSAGE_KEYWORDS = [
 # TODO: 이모티콘은 추후 앞뒤 맥락 파악 후 감정 분석에 활용할 수 있도록
 NONE_TEXT_PLACEHOLDERS = ["사진", "동영상", "이모티콘", "음성 메시지", "파일", "지도", "연락처", "일정", "투표"]
 
+_NON_TEXT_PATTERN = re.compile(
+  r"^(" + "|".join(NONE_TEXT_PLACEHOLDERS) + r")(\s*\d+[장개]?)?$"
+)
+
 _QUESTION_ENDINGS = re.compile(
   r"("
   r"[가나니까랴려냐는걸건데할임감슴습]\?|"  # 어미 + 물음표
@@ -38,10 +42,7 @@ def is_non_text(text):
   - 뒤에 [공백 + 숫자 + 장/개]가 올 수 있음
   - 문장이 종료됨
   """
-  stripped = text.strip()
-  pattern = r"^(" + "|".join(NONE_TEXT_PLACEHOLDERS) + r")(\s*\d+[장개]?)?$"
-    
-  return bool(re.match(pattern, stripped))
+  return bool(_NON_TEXT_PATTERN.match(text.strip()))
 
 
 def clean_text(text):
