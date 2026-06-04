@@ -38,3 +38,24 @@ def test_filter_does_not_mutate_original():
     judgment = LLMJudgment(dominance=axis, dependence=axis, report="rep", confidence=0.9)
     filter_hallucinated_evidence(judgment, _retrieved())
     assert len(judgment.dominance.evidence) == 1  # 원본 보존
+
+
+def test_filter_keeps_whitespace_variant_quote():
+    """공백 차이가 있어도 실제 존재하는 인용은 보존되어야 한다."""
+    # corpus window에는 공백 없이 "보고싶어서"가 들어 있음
+    retrieved_ws = {
+        "dominance": [{"text": "[나] 보고싶어서 연락했어\n[상대] 응", "speakers": ["나", "상대"], "session_id": 0, "sim": 0.9}],
+        "dependence": [{"text": "[상대] ㅇㅇ", "speakers": ["상대"], "session_id": 1, "sim": 0.8}],
+    }
+    # LLM이 공백을 넣어 "보고 싶어서"로 반환한 경우 → 여전히 KEPT
+    ws_variant = Evidence(quote="보고 싶어서", speaker="나", reason="연락 패턴")
+    # 진짜 없는 인용 → REMOVED
+    absent = Evidence(quote="존재하지않는말", speaker="나", reason="x")
+
+    axis = AxisJudgment(score=0.7, rationale="r", evidence=[ws_variant, absent])
+    judgment = LLMJudgment(dominance=axis, dependence=axis, report="rep", confidence=0.9)
+
+    cleaned = filter_hallucinated_evidence(judgment, retrieved_ws)
+    dom_quotes = [e.quote for e in cleaned.dominance.evidence]
+    assert "보고 싶어서" in dom_quotes, "공백 변형 인용이 유지되어야 한다"
+    assert "존재하지않는말" not in dom_quotes, "없는 인용은 제거되어야 한다"

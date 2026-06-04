@@ -1,5 +1,13 @@
 # llm/judge.py
 import json
+import re
+
+_WS = re.compile(r"\s+")
+
+
+def _squash(text: str) -> str:
+    """모든 공백 제거 (비교 전용)."""
+    return _WS.sub("", text)
 
 from llm.client import call_structured
 from llm.schema import LLMJudgment
@@ -39,17 +47,17 @@ def _corpus(retrieved: dict) -> str:
     return "\n".join(w["text"] for windows in retrieved.values() for w in windows)
 
 
-def _clean_axis(axis, corpus: str):
-    kept = [e for e in axis.evidence if e.quote.strip() and e.quote.strip() in corpus]
+def _clean_axis(axis, squashed_corpus: str):
+    kept = [e for e in axis.evidence if _squash(e.quote) and _squash(e.quote) in squashed_corpus]
     return axis.model_copy(update={"evidence": kept})
 
 
 def filter_hallucinated_evidence(judgment: LLMJudgment, retrieved: dict) -> LLMJudgment:
     """검색 근거에 존재하지 않는 인용을 제거한 새 판단 객체 반환."""
-    corpus = _corpus(retrieved)
+    squashed_corpus = _squash(_corpus(retrieved))
     return judgment.model_copy(update={
-        "dominance": _clean_axis(judgment.dominance, corpus),
-        "dependence": _clean_axis(judgment.dependence, corpus),
+        "dominance": _clean_axis(judgment.dominance, squashed_corpus),
+        "dependence": _clean_axis(judgment.dependence, squashed_corpus),
     })
 
 
