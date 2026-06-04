@@ -1,6 +1,6 @@
 # llm/pipeline.py
 from llm.anonymize import anonymize_messages
-from llm.retrieval import build_windows, retrieve_evidence
+from llm.retrieval import build_windows, retrieve_evidence, AXIS_QUERIES, WINDOW_SIZE
 from llm.judge import judge
 from llm.compare import compare_scores
 
@@ -19,7 +19,8 @@ def run_llm_analysis(df_filtered, me: str, tier1_result: dict, encoder, config) 
     """Tier2 전체 실행: 익명화 → 윈도우 → RAG 검색 → 판단 → 비교."""
     df_anon = anonymize_messages(df_filtered, me)
     windows = build_windows(df_anon)
-    retrieved = retrieve_evidence(windows, encoder)
+    top_k = max(1, config.max_messages // (len(AXIS_QUERIES) * WINDOW_SIZE))
+    retrieved = retrieve_evidence(windows, encoder, top_k=top_k)
     summary = _build_summary(tier1_result)
     judgment = judge(config, summary, retrieved)
     comparison = compare_scores(

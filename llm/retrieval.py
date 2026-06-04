@@ -2,6 +2,8 @@
 import numpy as np
 import pandas as pd
 
+WINDOW_SIZE = 4
+
 # 축별 자연어 쿼리 시드 (RAG 검색의 질의문)
 AXIS_QUERIES = {
     "dominance": [
@@ -15,7 +17,7 @@ AXIS_QUERIES = {
 }
 
 
-def build_windows(df: pd.DataFrame, window_size: int = 4) -> list[dict]:
+def build_windows(df: pd.DataFrame, window_size: int = WINDOW_SIZE) -> list[dict]:
     """메시지를 window_size개씩 묶어 맥락 윈도우 리스트로 변환."""
     rows = list(zip(df["User"].tolist(), df["Message"].tolist(), df["Session_ID"].tolist()))
     windows = []
