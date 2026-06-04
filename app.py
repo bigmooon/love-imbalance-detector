@@ -15,6 +15,11 @@ from visualize.charts import (
   create_radar_chart, create_timeline_chart,
   create_reply_time_chart, create_emotion_chart,
 )
+from llm.config import load_llm_config
+from llm.client import LLMError
+from llm.pipeline import run_llm_analysis
+from llm.ui import render_llm_section
+from models.hugging_face import encode_sentences
 
 # ── 상수 ──────────────────────────────────────────────────────────────────
 PAGE_TITLE = "💘 연애 권력 불균형 진단"
@@ -242,6 +247,24 @@ def render_loading():
       "fig_reply": fig_reply,
       "fig_emotion": fig_emotion,
     }
+
+    # Step 7: LLM 심층 분석 (Tier2) — 키 있을 때만, 실패해도 Tier1 보존
+    llm_result = None
+    api_key = st.session_state.get("api_key")
+    if api_key:
+      status.markdown("### 🤖 LLM 심층 분석 중...")
+      try:
+        config = load_llm_config(api_key_override=api_key)
+        encoder = lambda texts: encode_sentences(texts, sbert_model)
+        llm_result = run_llm_analysis(
+          df_filtered, me, st.session_state.analysis_result, encoder, config
+        )
+      except LLMError as e:
+        llm_result = {"error": str(e)}
+      except Exception as e:  # 예기치 못한 오류도 Tier1은 보존
+        llm_result = {"error": f"예상치 못한 오류: {e}"}
+
+    st.session_state.analysis_result["llm"] = llm_result
     st.session_state.phase = "result"
     st.rerun()
 
@@ -578,6 +601,9 @@ def render_result():
 
     st.caption("코사인 유사도 기반 측정 | 질문-답변 쌍의 의미적 연관도를 측정합니다")
 
+  # AI 심층 분석 섹션 (있으면)
+  render_llm_section(r.get("llm"), me, partner)
+
   st.divider()
 
   if st.button("🔄 재분석하기", use_container_width=True):
@@ -594,6 +620,16 @@ def main():
     initial_sidebar_state="collapsed",
   )
   _init_state()
+
+  with st.sidebar:
+    st.markdown("### ⚙️ LLM 설정")
+    api_key_input = st.text_input(
+      "OpenAI API 키",
+      type="password",
+      help="입력하면 AI 심층 분석(Tier2)이 활성화됩니다. 키는 세션에만 보관되며 저장되지 않습니다.",
+    )
+    st.session_state["api_key"] = api_key_input or None
+    st.caption("키 없이도 규칙 기반 분석은 정상 동작합니다.")
 
   phase = st.session_state.phase
   if phase == "upload":
