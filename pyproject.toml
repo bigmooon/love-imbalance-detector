@@ -16,6 +16,9 @@ dependencies = [
     "pandas>=2.0.0",
     "scikit-learn>=1.4.0",
     "numpy>=1.26.0",
+    "openai>=2.41.0",
+    "pydantic>=2.13.4",
+    "python-dotenv>=1.2.2",
 ]
 
 [build-system]
@@ -23,7 +26,12 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["utils*", "models*"]
+include = ["utils*", "models*", "features*", "visualize*", "llm*"]
 
 [tool.uv]
 package = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
