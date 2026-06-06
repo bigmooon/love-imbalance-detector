@@ -36,6 +36,12 @@ PROGRESS_STEPS = [
 ]
 
 
+@st.cache_data(show_spinner=False)
+def _cached_parse(uploaded_file):
+  """업로드 파일 파싱 결과를 Streamlit 세션 캐시에 보관 (위젯 재실행 시 재파싱 방지)."""
+  return parse_kakao_chat(uploaded_file)
+
+
 # ── 상태 관리 ─────────────────────────────────────────────────────────────
 def _init_state():
   defaults = {
@@ -73,7 +79,7 @@ def render_upload():
     return
 
   try:
-    df = parse_kakao_chat(uploaded)
+    df = _cached_parse(uploaded)
   except ValueError as e:
     st.error(f"❌ {e}")
     return
