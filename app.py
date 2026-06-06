@@ -20,27 +20,11 @@ from llm.client import LLMError
 from llm.pipeline import run_llm_analysis
 from llm.ui import render_llm_section
 from models.hugging_face import encode_sentences
+from features.presets import WEIGHT_PRESETS
 
 # ── 상수 ──────────────────────────────────────────────────────────────────
 PAGE_TITLE = "💘 연애 권력 불균형 진단"
 DEFAULT_SESSION_GAP = 30
-
-# 가중치 프리셋: None이면 각 함수의 DEFAULT_WEIGHTS 사용
-WEIGHT_PRESETS = {
-  "기본": {"dominance": None, "dependence": None},
-  "답장속도 중시": {
-    "dominance": None,
-    "dependence": {"reply_time_ratio": 0.55, "double_text_ratio": 0.25, "qa_sincerity_gap": 0.20},
-  },
-  "감정 중시": {
-    "dominance": {
-      "initiation_ratio": 0.10, "ending_ratio": 0.10,
-      "message_count_ratio": 0.10, "char_count_ratio": 0.05,
-      "joy_gap": 0.30, "negative_gap": 0.35,
-    },
-    "dependence": None,
-  },
-}
 
 PROGRESS_STEPS = [
   ("📂", "데이터 준비 중"),
