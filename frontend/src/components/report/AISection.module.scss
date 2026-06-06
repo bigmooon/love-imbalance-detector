@@ -1,0 +1,100 @@
+// AISection.module.scss
+@use '../../styles/tokens' as *;
+
+.nudge {
+  color: var(--ink-soft);
+  background: var(--paper-raised);
+  border: 1px dashed var(--hairline-strong);
+  padding: var(--space-3);
+}
+
+.error {
+  border-left: 3px solid var(--signal);
+  background: var(--signal-soft);
+  padding: var(--space-2) var(--space-3);
+}
+
+.confidence {
+  @include mono-label;
+  margin-bottom: var(--space-2);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-3);
+
+  th,
+  td {
+    border: 1px solid var(--hairline);
+    padding: 0.6rem 0.9rem;
+    text-align: left;
+  }
+
+  thead th {
+    @include mono-label;
+    background: var(--paper-raised);
+  }
+}
+
+.deltaUp { color: var(--me); }
+.deltaDown { color: var(--signal); }
+
+.agree {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.disagree {
+  color: var(--signal);
+  font-weight: 600;
+}
+
+.evidence {
+  margin-bottom: var(--space-2);
+
+  summary {
+    @include mono-label;
+    cursor: pointer;
+    padding: var(--space-1) 0;
+  }
+}
+
+.quote {
+  margin: var(--space-1) 0;
+  padding: var(--space-2);
+  background: var(--paper-raised);
+  border-left: 2px solid var(--hairline-strong);
+
+  pre {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    white-space: pre-wrap;
+    margin: 0.25rem 0 0;
+  }
+}
+
+.sim {
+  @include mono-label;
+}
+
+.report {
+  border-top: 1px solid var(--hairline);
+  padding-top: var(--space-3);
+  margin-top: var(--space-2);
+  // 마크다운 리포트는 세리프 본문으로 — 진단서 느낌
+  font-family: var(--font-display);
+  line-height: 1.8;
+
+  h2,
+  h3 {
+    margin: var(--space-2) 0 var(--space-1);
+  }
+
+  p,
+  li {
+    margin-bottom: var(--space-1);
+  }
+}

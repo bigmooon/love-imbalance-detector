@@ -1,12 +1,13 @@
 // frontend/src/components/report/ReportPage.tsx
 import type { CSSProperties } from 'react'
 import type { ReportPayload } from '../../api/types'
-import { Section } from './Section'
 import { VerdictSection } from './VerdictSection'
 import { RadarSection } from './RadarSection'
 import { VolumeSection } from './VolumeSection'
 import { EmotionSection } from './EmotionSection'
 import { ReplySection } from './ReplySection'
+import { SinceritySection } from './SinceritySection'
+import { AISection } from './AISection'
 import styles from './ReportPage.module.scss'
 
 interface Props {
@@ -38,14 +39,8 @@ export function ReportPage({ report, onReset }: Props) {
       <EmotionSection report={report} staggerIndex={4} />
       <ReplySection report={report} staggerIndex={5} />
 
-      {report.llm === null && report.llm_error === null && (
-        <Section no="—" title="AI 심층 분석" staggerIndex={6}>
-          <p className={styles.llmNudge}>
-            OpenAI API 키를 입력하면 LLM이 실제 대화 장면을 인용하며 심층 진단을 제공합니다.
-            (규칙 기반 분석 결과는 위에 그대로 유지됩니다)
-          </p>
-        </Section>
-      )}
+      <SinceritySection report={report} staggerIndex={6} />
+      <AISection report={report} staggerIndex={7} />
     </main>
   )
 }

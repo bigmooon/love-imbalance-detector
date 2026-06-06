@@ -16,4 +16,21 @@ describe('ReportPage', () => {
     render(<ReportPage report={fixtureReport} onReset={vi.fn()} />)
     expect(screen.getByText(/API 키를 입력하면/)).toBeTruthy()
   })
+
+  it('renders llm comparison when llm payload exists', () => {
+    const withLlm = {
+      ...fixtureReport,
+      llm: {
+        confidence: 0.8,
+        report: '## AI 진단\n\n관찰 내용',
+        dominance: { tier1: 0.62, llm: 0.7, delta: 0.08, agree: true },
+        dependence: { tier1: 0.71, llm: 0.5, delta: -0.21, agree: false },
+        evidence: { dominance: [{ text: '[나] 보고싶어', sim: 0.72 }], dependence: [] },
+      },
+    }
+    render(<ReportPage report={withLlm} onReset={vi.fn()} />)
+    expect(screen.getByText('동의')).toBeTruthy()
+    expect(screen.getByText('관점 차이')).toBeTruthy()
+    expect(screen.queryByText(/API 키를 입력하면/)).toBeNull()
+  })
 })
