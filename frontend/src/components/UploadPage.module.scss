@@ -1,0 +1,170 @@
+@use '../styles/tokens' as *;
+
+.page {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-3) var(--space-5);
+}
+
+.masthead {
+  @include rule-top(3px);
+  padding-top: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.kicker {
+  @include mono-label;
+  color: var(--signal);
+  margin-bottom: var(--space-3);
+}
+
+.title {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  margin-bottom: var(--space-3);
+
+  em {
+    font-style: italic;
+    color: var(--signal);
+  }
+}
+
+.lede {
+  max-width: 32rem;
+  color: var(--ink-soft);
+}
+
+.dropzone {
+  border: 1.5px dashed var(--hairline-strong);
+  background: var(--paper-raised);
+  padding: var(--space-5) var(--space-3);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover,
+  &.dragOver {
+    border-color: var(--signal);
+    background: var(--signal-soft);
+  }
+}
+
+.dropLabel {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+
+.dropHint {
+  @include mono-label;
+}
+
+.configure {
+  @include rule-top;
+  padding-top: var(--space-3);
+}
+
+.summaryRow {
+  display: flex;
+  gap: var(--space-5);
+  margin-bottom: var(--space-4);
+
+  dt {
+    @include mono-label;
+    margin-bottom: 0.25rem;
+  }
+
+  dd {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    span {
+      @include mono-label;
+    }
+
+    select,
+    input[type='date'],
+    input[type='password'] {
+      font: inherit;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--hairline-strong);
+      border-radius: var(--radius);
+      background: var(--paper-raised);
+      color: var(--ink);
+
+      &:focus {
+        outline: 2px solid var(--me);
+        outline-offset: 1px;
+      }
+    }
+
+    input[type='range'] {
+      accent-color: var(--signal);
+    }
+  }
+}
+
+.cta {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.9rem 2.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius);
+  transition: background 0.2s;
+
+  &:hover:not(:disabled) {
+    background: var(--signal);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+}
+
+.resetLink {
+  @include mono-label;
+  background: none;
+  border: none;
+  margin-left: var(--space-3);
+  text-decoration: underline;
+}
+
+.error {
+  margin-top: var(--space-3);
+  padding: var(--space-2);
+  border-left: 3px solid var(--signal);
+  background: var(--signal-soft);
+  color: var(--signal);
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryRow {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+}
