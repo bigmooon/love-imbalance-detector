@@ -48,9 +48,20 @@
 }
 
 // 리포트 섹션 등장 모션 (스태거는 --stagger-i 인덱스로)
+// 주의: CSS Modules가 animation-name을 모듈 단위로 스코핑하므로,
+// keyframes를 사용처와 같은 모듈에 함께 방출해야 한다 (@at-root).
 @mixin rise-in {
   opacity: 0;
   transform: translateY(14px);
   animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: calc(var(--stagger-i, 0) * 120ms);
+
+  @at-root {
+    @keyframes rise-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
 }
