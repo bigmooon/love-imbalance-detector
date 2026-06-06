@@ -2,8 +2,11 @@
 import io
 import logging
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, UploadFile
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from utils.kakao_parser import parse_kakao_chat
 from server.analysis import AnalysisOptions, TOTAL_STEPS, run_analysis
@@ -25,6 +28,16 @@ uploads = UploadStore()
 jobs = JobStore()
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """422 응답에서 요청 body 반향(input) 제거 — api_key 등 민감 값 노출 방지."""
+    errors = [
+        {k: v for k, v in err.items() if k != "input"}
+        for err in exc.errors()
+    ]
+    return JSONResponse(status_code=422, content=jsonable_encoder({"detail": errors}))
+
+
 @app.post("/api/upload", response_model=UploadSummary)
 async def upload(file: UploadFile) -> UploadSummary:
     raw = await file.read()
@@ -34,7 +47,7 @@ async def upload(file: UploadFile) -> UploadSummary:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.exception("CSV 파싱 실패")
-        raise HTTPException(status_code=400, detail=f"CSV를 읽을 수 없습니다: {e}")
+        raise HTTPException(status_code=400, detail="CSV를 읽을 수 없습니다. 카카오톡 내보내기 형식(Date,User,Message)인지 확인해주세요.")
 
     return UploadSummary(
         upload_id=uploads.put(df),
@@ -56,7 +69,7 @@ def _run_job(job_id: str, df, opts: AnalysisOptions):
         jobs.set_error(job_id, str(e))
     except Exception as e:
         logger.exception("분석 실패")
-        jobs.set_error(job_id, f"분석 중 오류가 발생했습니다: {e}")
+        jobs.set_error(job_id, "분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
 
 
 @app.post("/api/analyze")

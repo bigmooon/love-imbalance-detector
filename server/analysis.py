@@ -1,6 +1,6 @@
 """UI 없는 분석 파이프라인. app.py render_loading()의 로직을 추출한 것."""
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class AnalysisOptions:
     end_date: date
     session_gap: int = 30
     preset: str = "기본"
-    api_key: str | None = None
+    api_key: str | None = field(default=None, repr=False)
 
 
 def run_analysis(

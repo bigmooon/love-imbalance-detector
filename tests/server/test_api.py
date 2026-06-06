@@ -86,6 +86,26 @@ def test_unknown_job_returns_404(client):
     assert client.get("/api/jobs/nope").status_code == 404
 
 
+def test_analyze_reversed_dates_returns_400(client):
+    upload_id = _upload(client).json()["upload_id"]
+    res = client.post("/api/analyze", json={
+        "upload_id": upload_id, "me": "지언",
+        "start_date": "2025-12-31", "end_date": "2025-01-01",
+    })
+    assert res.status_code == 400
+
+
+def test_validation_error_does_not_echo_api_key(client):
+    # me 누락 → 422. 응답 본문에 api_key 값이 반향되면 안 됨
+    res = client.post("/api/analyze", json={
+        "upload_id": "u1",
+        "start_date": "2025-01-01", "end_date": "2025-12-31",
+        "api_key": "sk-secret-test-key",
+    })
+    assert res.status_code == 422
+    assert "sk-secret-test-key" not in res.text
+
+
 def test_analysis_error_sets_job_error(client, monkeypatch):
     def boom(df, opts, progress_cb=lambda i, l: None, **kw):
         raise ValueError("기간에 메시지가 없습니다")
