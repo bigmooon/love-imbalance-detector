@@ -4,3 +4,5 @@ data/
 06_huggingface_pipeline.egg-info/
 .DS_Store
 .env
+node_modules/
+frontend/dist/
