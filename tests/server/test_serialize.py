@@ -82,7 +82,8 @@ def test_reply_time_mapping(analysis_result):
     # me_median = partner_to_me (내가 답장하기까지)
     assert payload.reply_time.me_median_sec == 30.0
     assert payload.reply_time.partner_median_sec == 465.0
-    assert payload.reply_time.me_box.median > 0
+    assert payload.reply_time.me_box.median == pytest.approx(4.5)
+    assert payload.reply_time.partner_box.median == pytest.approx(15.0)
 
 
 def test_qa_pairs_capped_at_ten(analysis_result):
@@ -96,6 +97,13 @@ def test_llm_none_and_error(analysis_result):
     payload = build_report_payload(analysis_result)
     assert payload.llm is None
     assert payload.llm_error == "boom"
+
+
+def test_box_stats_empty_series_returns_zeros():
+    from server.serialize import _box_stats
+    import pandas as pd
+    box = _box_stats(pd.Series([], dtype=float))
+    assert box.lo == box.q1 == box.median == box.q3 == box.hi == 0.0
 
 
 def test_llm_full(analysis_result):

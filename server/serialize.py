@@ -10,6 +10,7 @@ from server.schemas import (
 )
 
 MAX_QA_PAIRS = 10
+MAX_EVIDENCE_WINDOWS = 4
 
 
 def _build_radar(dominance_metrics: dict, dependence_metrics: dict) -> RadarPayload:
@@ -77,7 +78,7 @@ def _build_llm(llm_result) -> tuple[LLMPayload | None, str | None]:
         dominance=AxisComparison(**comparison["dominance"]),
         dependence=AxisComparison(**comparison["dependence"]),
         evidence={
-            axis: [EvidenceWindow(text=w["text"], sim=float(w["sim"])) for w in windows[:4]]
+            axis: [EvidenceWindow(text=w["text"], sim=float(w["sim"])) for w in windows[:MAX_EVIDENCE_WINDOWS]]
             for axis, windows in retrieved.items()
         },
     ), None
