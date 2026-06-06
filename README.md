@@ -1,6 +1,7 @@
 # 💘 연애 권력 불균형 진단기
 
-> 카카오톡 대화를 AI로 분석해 연인 사이의 우위관계를 수치화하는 Streamlit 웹앱
+> 카카오톡 대화를 AI로 분석해 연인 사이의 우위관계를 수치화하는 웹앱
+> (React + FastAPI 웹 앱 / 레거시 Streamlit 데모 동시 지원)
 
 ---
 
@@ -21,7 +22,9 @@ HuggingFace 기반 NLP 모델로 대화를 분석하고 두 가지 핵심 지표
 | 분류 | 기술 | 버전 |
 |------|------|------|
 | **Language** | ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) | `>=3.12` |
-| **Web Framework** | ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white) | `>=1.35.0` |
+| **Backend API** | ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi) | `>=0.115.0` |
+| **Frontend** | ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white) ![SASS](https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white) | React 19 · Vite |
+| **Web Framework (레거시)** | ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white) | `>=1.35.0` |
 | **데이터 처리** | ![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white) | `>=2.0.0` |
 | **데이터 처리** | ![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white) | `>=1.26.0` |
 | **시각화** | ![Plotly](https://img.shields.io/badge/Plotly-%233F4F75.svg?style=for-the-badge&logo=plotly&logoColor=white) | `>=5.20.0` |
@@ -88,18 +91,35 @@ HuggingFace 기반 NLP 모델로 대화를 분석하고 두 가지 핵심 지표
 
 ```
 love-imbalance-detector
-├── app.py                  # Streamlit
+├── frontend/               # React + TypeScript + SCSS (Vite)
+│   └── src/
+│       ├── api/            # 백엔드 API 타입 + fetch 클라이언트
+│       ├── state/          # 화면 전환 상태 머신 (useReducer)
+│       ├── components/     # 업로드 / 분석 진행 / 리포트 섹션
+│       └── styles/         # 에디토리얼 디자인 토큰 (SCSS)
+│
+├── server/                 # FastAPI 백엔드
+│   ├── main.py             # 엔드포인트 (upload / analyze / jobs)
+│   ├── analysis.py         # UI 없는 분석 파이프라인 (진행 콜백)
+│   ├── serialize.py        # 분석 결과 → JSON ReportPayload
+│   ├── schemas.py          # Pydantic 요청/응답 모델
+│   └── store.py            # 업로드/잡 인메모리 저장소
+│
+├── app.py                  # Streamlit (레거시 데모)
 │
 ├── features/
 │   ├── dominance.py        # 지배성 지표 계산
-│   └── dependence.py       # 의존도 지표 계산
+│   ├── dependence.py       # 의존도 지표 계산
+│   └── presets.py          # 가중치 프리셋
 │
 ├── models/
-│   ├── hugging_face.py     # 모델 로드 + 배치 추론 (@st.cache_resource)
+│   ├── hugging_face.py     # 모델 로드 + 배치 추론 (lru_cache)
 │   └── emotion_labels.py   # 감정 그룹 매핑
 │
 ├── visualize/
-│   └── charts.py           # Plotly 차트 생성
+│   └── charts.py           # Plotly 차트 생성 (Streamlit용)
+│
+├── llm/                    # 2-Tier LLM 하이브리드 (RAG + 판정)
 │
 └── utils/
     ├── kakao_parser.py     # 카카오톡 CSV 파싱 + 세션 분리
@@ -134,7 +154,7 @@ CSV 업로드
 - Tier1 점수와 LLM 점수를 **나란히 비교**하고, 불일치 시 LLM이 근거와 함께 이유를 설명합니다.
 - LLM 인용은 검색 근거에 실제 존재하는지 **사후 검증**해 할루시네이션을 거릅니다.
 - 전송 전 화자명을 `나`/`상대`로 **익명화**합니다.
-- **OpenAI API 키 없이도 Tier1 분석은 정상 동작**합니다 (사이드바에서 키 입력 시 Tier2 활성화).
+- **OpenAI API 키 없이도 Tier1 분석은 정상 동작**합니다 (웹 앱은 업로드 화면, Streamlit은 사이드바에서 키 입력 시 Tier2 활성화).
 
 ### 환경 변수
 | 변수 | 기본값 | 설명 |
@@ -146,23 +166,34 @@ CSV 업로드
 
 ## 실행 방법
 
-### uv 사용 (권장)
+### 웹 앱 (React + FastAPI, 권장)
 
 ```bash
-# 의존성 설치
+# 백엔드 (터미널 1)
 uv sync
+uv run uvicorn server.main:app --port 8000
 
-# 앱 실행
-streamlit run app.py
+# 프론트엔드 (터미널 2)
+cd frontend
+npm install
+npm run dev   # http://localhost:5173
 ```
 
-### pip 사용
-```bash
-# 의존성 설치
-pip instlall -r requirements.txt
+`/api` 요청은 Vite 프록시를 통해 백엔드(8000)로 전달됩니다.
+OpenAI API 키는 업로드 화면에서 선택 입력 — 입력 시 Tier2 LLM 심층 분석이 활성화됩니다.
 
-# 앱 실행
-streamlit run app.py
+### 레거시 Streamlit 데모
+
+```bash
+uv sync
+uv run streamlit run app.py
+```
+
+### 테스트
+
+```bash
+uv run python -m pytest tests/   # 백엔드 (59 tests)
+cd frontend && npm test          # 프론트엔드 (22 tests)
 ```
 
 ### 카카오톡 CSV 내보내기
