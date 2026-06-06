@@ -3,6 +3,8 @@ import type { CSSProperties } from 'react'
 import type { ReportPayload } from '../../api/types'
 import { Section } from './Section'
 import { VerdictSection } from './VerdictSection'
+import { RadarSection } from './RadarSection'
+import { VolumeSection } from './VolumeSection'
 import styles from './ReportPage.module.scss'
 
 interface Props {
@@ -28,8 +30,10 @@ export function ReportPage({ report, onReset }: Props) {
 
       <VerdictSection report={report} />
 
-      {/* Task 13~15에서 섹션 추가: RadarSection, VolumeSection, EmotionSection,
-          ReplySection, SinceritySection, AISection */}
+      <RadarSection report={report} staggerIndex={2} />
+      <VolumeSection report={report} staggerIndex={3} />
+
+      {/* Task 14~15에서 섹션 추가: EmotionSection, ReplySection, SinceritySection, AISection */}
 
       {report.llm === null && report.llm_error === null && (
         <Section no="—" title="AI 심층 분석" staggerIndex={6}>
