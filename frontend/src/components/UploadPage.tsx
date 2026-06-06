@@ -91,13 +91,19 @@ export function UploadPage({ state, dispatch }: Props) {
           onDrop={(e) => {
             e.preventDefault()
             setDragOver(false)
+            if (busy) return
             const file = e.dataTransfer.files[0]
             if (file) void handleFile(file)
           }}
-          onClick={() => fileInput.current?.click()}
+          onClick={() => !busy && fileInput.current?.click()}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && fileInput.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              fileInput.current?.click()
+            }
+          }}
         >
           <input
             ref={fileInput}

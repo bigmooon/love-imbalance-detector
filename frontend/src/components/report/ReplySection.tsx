@@ -27,7 +27,6 @@ function BoxPlot({ name, box, max, color }: { name: string; box: BoxStats; max: 
 function RatioBar({ label, me, partner, meName, partnerName }: {
   label: string; me: number; partner: number; meName: string; partnerName: string
 }) {
-  const total = me + partner || 1
   return (
     <div className={styles.ratioCard}>
       <p className={styles.ratioTitle}>{label}</p>
@@ -35,7 +34,7 @@ function RatioBar({ label, me, partner, meName, partnerName }: {
         <div key={row.name} className={styles.ratioRow}>
           <span>{row.name}</span>
           <div className={styles.ratioTrack}>
-            <span className={`${styles.ratioFill} ${row.cls}`} style={{ width: pct(row.v / total) }} />
+            <span className={`${styles.ratioFill} ${row.cls}`} style={{ width: pct(Math.min(1, row.v)) }} />
           </div>
           <strong>{pct(row.v)}</strong>
         </div>
