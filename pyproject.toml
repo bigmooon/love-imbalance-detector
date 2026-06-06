@@ -19,6 +19,9 @@ dependencies = [
     "openai>=2.41.0",
     "pydantic>=2.13.4",
     "python-dotenv>=1.2.2",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "python-multipart>=0.0.9",
 ]
 
 [build-system]
@@ -34,4 +37,5 @@ package = true
 [dependency-groups]
 dev = [
     "pytest>=9.0.3",
+    "httpx>=0.27.0",
 ]
