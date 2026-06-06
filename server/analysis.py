@@ -1,6 +1,9 @@
 """UI 없는 분석 파이프라인. app.py render_loading()의 로직을 추출한 것."""
+import logging
 from dataclasses import dataclass
 from datetime import date
+
+logger = logging.getLogger(__name__)
 
 from utils.kakao_parser import split_sessions
 from features.presets import WEIGHT_PRESETS
@@ -127,8 +130,10 @@ def run_analysis(
             encoder = lambda texts: encode_sentences(texts, sbert_model)
             llm_result = run_llm_analysis(df_filtered, opts.me, result, encoder, config)
         except LLMError as e:
+            logger.warning("LLM 분석 실패: %s", e)
             llm_result = {"error": str(e)}
         except Exception as e:  # 예기치 못한 오류도 Tier1은 보존
+            logger.exception("LLM 분석 중 예상치 못한 오류")
             llm_result = {"error": f"예상치 못한 오류: {e}"}
 
     return {**result, "llm": llm_result}

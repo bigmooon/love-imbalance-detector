@@ -60,3 +60,40 @@ def test_run_analysis_empty_range_raises(raw_df):
     )
     with pytest.raises(ValueError, match="기간"):
         run_analysis(raw_df, opts, classifier=fake_classifier, sbert_model=FakeSbert())
+
+
+def test_llm_error_preserves_tier1(raw_df, monkeypatch):
+    """LLMError 발생 시 llm={"error": ...}, Tier1 결과는 보존."""
+    import server.analysis as analysis_mod
+    from llm.client import LLMError
+
+    def boom(*args, **kwargs):
+        raise LLMError("API 호출 실패")
+
+    monkeypatch.setattr(analysis_mod, "run_llm_analysis", boom)
+    opts = AnalysisOptions(
+        me="지언", start_date=date(2025, 1, 1), end_date=date(2025, 12, 31),
+        api_key="sk-test",
+    )
+    result = run_analysis(raw_df, opts, classifier=fake_classifier, sbert_model=FakeSbert())
+    assert result["llm"] == {"error": "API 호출 실패"}
+    assert 0.0 <= result["dominance_index"] <= 1.0  # Tier1 보존
+    assert result["partner"] == "민수"
+
+
+def test_llm_unexpected_error_preserves_tier1(raw_df, monkeypatch):
+    """예기치 못한 예외도 {"error": ...}로 변환되고 Tier1 보존."""
+    import server.analysis as analysis_mod
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("뭔가 잘못됨")
+
+    monkeypatch.setattr(analysis_mod, "run_llm_analysis", boom)
+    opts = AnalysisOptions(
+        me="지언", start_date=date(2025, 1, 1), end_date=date(2025, 12, 31),
+        api_key="sk-test",
+    )
+    result = run_analysis(raw_df, opts, classifier=fake_classifier, sbert_model=FakeSbert())
+    assert "error" in result["llm"]
+    assert "뭔가 잘못됨" in result["llm"]["error"]
+    assert 0.0 <= result["dependence_index"] <= 1.0  # Tier1 보존
