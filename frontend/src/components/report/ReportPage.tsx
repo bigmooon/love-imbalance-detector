@@ -5,6 +5,8 @@ import { Section } from './Section'
 import { VerdictSection } from './VerdictSection'
 import { RadarSection } from './RadarSection'
 import { VolumeSection } from './VolumeSection'
+import { EmotionSection } from './EmotionSection'
+import { ReplySection } from './ReplySection'
 import styles from './ReportPage.module.scss'
 
 interface Props {
@@ -33,7 +35,8 @@ export function ReportPage({ report, onReset }: Props) {
       <RadarSection report={report} staggerIndex={2} />
       <VolumeSection report={report} staggerIndex={3} />
 
-      {/* Task 14~15에서 섹션 추가: EmotionSection, ReplySection, SinceritySection, AISection */}
+      <EmotionSection report={report} staggerIndex={4} />
+      <ReplySection report={report} staggerIndex={5} />
 
       {report.llm === null && report.llm_error === null && (
         <Section no="—" title="AI 심층 분석" staggerIndex={6}>
