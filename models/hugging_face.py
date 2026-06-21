@@ -1,5 +1,6 @@
+from functools import lru_cache
+
 import numpy as np
-import streamlit as st
 from transformers import pipeline
 from sentence_transformers import SentenceTransformer
 from models.emotion_labels import LABEL2ID, get_emotion_group, ACTIVE_PRESET
@@ -8,11 +9,11 @@ BATCH_SIZE = 64
 SBERT_MODEL_NAME = "snunlp/KR-SBERT-V40K-klueNLI-augSTS"
 
 
-@st.cache_resource
+@lru_cache(maxsize=1)
 def load_emotion_classifier():
   """
   HuggingFace 감정 분류 파이프라인 로드.
-  @st.cache_resource로 캐싱하여 Streamlit 재실행 시 재로드 방지.
+  @lru_cache로 프로세스 내 1회만 로드 (Streamlit/FastAPI 공용).
   """
   return pipeline(
     "text-classification",
@@ -23,11 +24,11 @@ def load_emotion_classifier():
   )
 
 
-@st.cache_resource
+@lru_cache(maxsize=1)
 def load_sbert_model():
   """
   KR-SBERT 문장 임베딩 모델 로드.
-  @st.cache_resource로 캐싱하여 Streamlit 재실행 시 재로드 방지.
+  @lru_cache로 프로세스 내 1회만 로드 (Streamlit/FastAPI 공용).
   """
   return SentenceTransformer(SBERT_MODEL_NAME)
 

@@ -1,0 +1,56 @@
+// frontend/src/components/report/ReportPage.module.scss
+@use '../../styles/tokens' as *;
+
+.page {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-3) var(--space-6);
+}
+
+.masthead {
+  @include rise-in;
+  border-top: 3px solid var(--ink);
+  padding-top: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.mastRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-3);
+}
+
+.kicker {
+  @include mono-label;
+  color: var(--signal);
+}
+
+.reset {
+  @include mono-label;
+  background: none;
+  border: 1px solid var(--hairline-strong);
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius);
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+}
+
+.title {
+  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  font-weight: 900;
+}
+
+.vs {
+  color: var(--signal);
+  font-weight: 400;
+}
+
+.sub {
+  color: var(--ink-soft);
+  margin-top: var(--space-1);
+}

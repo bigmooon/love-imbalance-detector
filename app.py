@@ -20,27 +20,11 @@ from llm.client import LLMError
 from llm.pipeline import run_llm_analysis
 from llm.ui import render_llm_section
 from models.hugging_face import encode_sentences
+from features.presets import WEIGHT_PRESETS
 
 # ── 상수 ──────────────────────────────────────────────────────────────────
 PAGE_TITLE = "💘 연애 권력 불균형 진단"
 DEFAULT_SESSION_GAP = 30
-
-# 가중치 프리셋: None이면 각 함수의 DEFAULT_WEIGHTS 사용
-WEIGHT_PRESETS = {
-  "기본": {"dominance": None, "dependence": None},
-  "답장속도 중시": {
-    "dominance": None,
-    "dependence": {"reply_time_ratio": 0.55, "double_text_ratio": 0.25, "qa_sincerity_gap": 0.20},
-  },
-  "감정 중시": {
-    "dominance": {
-      "initiation_ratio": 0.10, "ending_ratio": 0.10,
-      "message_count_ratio": 0.10, "char_count_ratio": 0.05,
-      "joy_gap": 0.30, "negative_gap": 0.35,
-    },
-    "dependence": None,
-  },
-}
 
 PROGRESS_STEPS = [
   ("📂", "데이터 준비 중"),
@@ -50,6 +34,12 @@ PROGRESS_STEPS = [
   ("📊", "지표 계산 중"),
   ("✨", "시각화 생성 중"),
 ]
+
+
+@st.cache_data(show_spinner=False)
+def _cached_parse(uploaded_file):
+  """업로드 파일 파싱 결과를 Streamlit 세션 캐시에 보관 (위젯 재실행 시 재파싱 방지)."""
+  return parse_kakao_chat(uploaded_file)
 
 
 # ── 상태 관리 ─────────────────────────────────────────────────────────────
@@ -89,7 +79,7 @@ def render_upload():
     return
 
   try:
-    df = parse_kakao_chat(uploaded)
+    df = _cached_parse(uploaded)
   except ValueError as e:
     st.error(f"❌ {e}")
     return

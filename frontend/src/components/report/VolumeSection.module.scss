@@ -1,0 +1,29 @@
+@use '../../styles/tokens' as *;
+
+.chartWrap {
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  padding: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+
+  dt {
+    @include mono-label;
+    margin-bottom: 0.25rem;
+  }
+
+  dd {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
