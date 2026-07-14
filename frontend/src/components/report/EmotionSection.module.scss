@@ -1,0 +1,77 @@
+@use '../../styles/tokens' as *;
+
+.warning {
+  border-left: 3px solid var(--signal);
+  background: var(--signal-soft);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+
+  strong {
+    color: var(--signal);
+  }
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.barName {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.bar {
+  display: flex;
+  height: 1.6rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  overflow: hidden;
+}
+
+.seg {
+  display: block;
+  height: 100%;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  list-style: none;
+  padding: 0;
+
+  li {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.legendVals {
+  color: var(--ink-soft);
+}
+
+.caption {
+  @include mono-label;
+  margin-top: var(--space-1);
+}

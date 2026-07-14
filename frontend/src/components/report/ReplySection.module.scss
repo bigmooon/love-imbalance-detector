@@ -1,0 +1,140 @@
+@use '../../styles/tokens' as *;
+
+.medians {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.medianCard {
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  padding: var(--space-3);
+}
+
+.medianLabel {
+  @include mono-label;
+  margin-bottom: var(--space-1);
+}
+
+.medianValue {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.toneMe { color: var(--me); }
+.tonePartner { color: var(--signal); }
+
+.boxes {
+  border: 1px solid var(--hairline);
+  background: var(--paper-raised);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.boxesTitle {
+  @include mono-label;
+  margin-bottom: var(--space-2);
+}
+
+.boxRow {
+  display: grid;
+  grid-template-columns: 5rem 1fr 4rem;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.boxName,
+.boxVal {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.boxTrack {
+  position: relative;
+  height: 1.4rem;
+}
+
+.whisker {
+  position: absolute;
+  top: 50%;
+  height: 1px;
+  background: var(--hairline-strong);
+}
+
+.iqr {
+  position: absolute;
+  top: 0.2rem;
+  bottom: 0.2rem;
+  border: 1.5px solid;
+  background: var(--paper);
+}
+
+.median {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+
+.insight {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin-top: var(--space-1);
+}
+
+.ratios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.ratioCard {
+  border: 1px solid var(--hairline);
+  background: var(--paper-raised);
+  padding: var(--space-3);
+}
+
+.ratioTitle {
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.ratioRow {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr 3.5rem;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+
+  strong {
+    text-align: right;
+  }
+}
+
+.ratioTrack {
+  height: 6px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+}
+
+.ratioFill {
+  display: block;
+  height: 100%;
+}
+
+.fillMe { background: var(--me); }
+.fillPartner { background: var(--signal); }
+
+@media (max-width: 640px) {
+  .medians,
+  .ratios {
+    grid-template-columns: 1fr;
+  }
+}

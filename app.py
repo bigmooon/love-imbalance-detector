@@ -1,41 +1,30 @@
 # app.py
 import streamlit as st
 
-from utils.kakao_parser import parse_kakao_chat, split_sessions
-from models.hugging_face import load_emotion_classifier, load_sbert_model
-from features.dominance import (
+from core.utils.kakao_parser import parse_kakao_chat, split_sessions
+from core.models.hugging_face import load_emotion_classifier, load_sbert_model
+from core.features.dominance import (
   calc_start_ratio, calc_end_ratio, calc_participation_ratio,
   calc_emotion_dominance, compute_dominance_features,
 )
-from features.dependence import (
+from core.features.dependence import (
   calc_reply_time_asymmetry, calc_double_text_ratio,
   calc_qa_sincerity, compute_dependence_index,
 )
-from visualize.charts import (
+from core.visualize.charts import (
   create_radar_chart, create_timeline_chart,
   create_reply_time_chart, create_emotion_chart,
 )
+from core.llm.config import load_llm_config
+from core.llm.client import LLMError
+from core.llm.pipeline import run_llm_analysis
+from core.llm.ui import render_llm_section
+from core.models.hugging_face import encode_sentences
+from core.features.presets import WEIGHT_PRESETS
 
 # ── 상수 ──────────────────────────────────────────────────────────────────
 PAGE_TITLE = "💘 연애 권력 불균형 진단"
 DEFAULT_SESSION_GAP = 30
-
-# 가중치 프리셋: None이면 각 함수의 DEFAULT_WEIGHTS 사용
-WEIGHT_PRESETS = {
-  "기본": {"dominance": None, "dependence": None},
-  "답장속도 중시": {
-    "dominance": None,
-    "dependence": {"reply_time_ratio": 0.55, "double_text_ratio": 0.25, "qa_sincerity_gap": 0.20},
-  },
-  "감정 중시": {
-    "dominance": {
-      "initiation_ratio": 0.10, "ending_ratio": 0.10,
-      "message_count_ratio": 0.10, "char_count_ratio": 0.05,
-      "joy_gap": 0.30, "negative_gap": 0.35,
-    },
-    "dependence": None,
-  },
-}
 
 PROGRESS_STEPS = [
   ("📂", "데이터 준비 중"),
@@ -45,6 +34,12 @@ PROGRESS_STEPS = [
   ("📊", "지표 계산 중"),
   ("✨", "시각화 생성 중"),
 ]
+
+
+@st.cache_data(show_spinner=False)
+def _cached_parse(uploaded_file):
+  """업로드 파일 파싱 결과를 Streamlit 세션 캐시에 보관 (위젯 재실행 시 재파싱 방지)."""
+  return parse_kakao_chat(uploaded_file)
 
 
 # ── 상태 관리 ─────────────────────────────────────────────────────────────
@@ -84,7 +79,7 @@ def render_upload():
     return
 
   try:
-    df = parse_kakao_chat(uploaded)
+    df = _cached_parse(uploaded)
   except ValueError as e:
     st.error(f"❌ {e}")
     return
@@ -242,6 +237,24 @@ def render_loading():
       "fig_reply": fig_reply,
       "fig_emotion": fig_emotion,
     }
+
+    # Step 7: LLM 심층 분석 (Tier2) — 키 있을 때만, 실패해도 Tier1 보존
+    llm_result = None
+    api_key = st.session_state.get("api_key")
+    if api_key:
+      status.markdown("### 🤖 LLM 심층 분석 중...")
+      try:
+        config = load_llm_config(api_key_override=api_key)
+        encoder = lambda texts: encode_sentences(texts, sbert_model)
+        llm_result = run_llm_analysis(
+          df_filtered, me, st.session_state.analysis_result, encoder, config
+        )
+      except LLMError as e:
+        llm_result = {"error": str(e)}
+      except Exception as e:  # 예기치 못한 오류도 Tier1은 보존
+        llm_result = {"error": f"예상치 못한 오류: {e}"}
+
+    st.session_state.analysis_result["llm"] = llm_result
     st.session_state.phase = "result"
     st.rerun()
 
@@ -578,6 +591,9 @@ def render_result():
 
     st.caption("코사인 유사도 기반 측정 | 질문-답변 쌍의 의미적 연관도를 측정합니다")
 
+  # AI 심층 분석 섹션 (있으면)
+  render_llm_section(r.get("llm"), me, partner)
+
   st.divider()
 
   if st.button("🔄 재분석하기", use_container_width=True):
@@ -594,6 +610,16 @@ def main():
     initial_sidebar_state="collapsed",
   )
   _init_state()
+
+  with st.sidebar:
+    st.markdown("### ⚙️ LLM 설정")
+    api_key_input = st.text_input(
+      "OpenAI API 키",
+      type="password",
+      help="입력하면 AI 심층 분석(Tier2)이 활성화됩니다. 키는 세션에만 보관되며 저장되지 않습니다.",
+    )
+    st.session_state["api_key"] = api_key_input or None
+    st.caption("키 없이도 규칙 기반 분석은 정상 동작합니다.")
 
   phase = st.session_state.phase
   if phase == "upload":

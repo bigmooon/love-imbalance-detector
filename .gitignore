@@ -1,6 +1,12 @@
 __pycache__
-tests/
-data/
+# 공개 재배포 금지(public) / 개인정보(private)만 제외 — 합성 데이터(synth)와 결과는 커밋
+data/public/*
+data/private/*
+!data/public/.gitkeep
+!data/private/.gitkeep
 .venv/
 06_huggingface_pipeline.egg-info/
 .DS_Store
+.env
+node_modules/
+frontend/dist/

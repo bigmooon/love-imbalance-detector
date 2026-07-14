@@ -1,0 +1,67 @@
+// 에디토리얼 리포트 디자인 토큰
+// 컨셉: 관계 감사 보고서 — 크림 종이 위 잉크, 시그널 레드 포인트
+
+:root {
+  // 컬러
+  --paper: #f6f1e7;          // 크림 종이
+  --paper-raised: #fdfbf4;   // 카드/박스 표면
+  --ink: #1c1814;            // 본문 잉크
+  --ink-soft: #6b6258;       // 보조 텍스트
+  --hairline: rgba(28, 24, 20, 0.22);
+  --hairline-strong: rgba(28, 24, 20, 0.55);
+  --signal: #c8361f;         // 시그널 레드 (강조/불균형/상대)
+  --signal-soft: rgba(200, 54, 31, 0.07);
+  --me: #1f4d8f;             // 나 (잉크 블루)
+  --me-soft: rgba(31, 77, 143, 0.08);
+  --ok: #3d6b35;             // 균형/긍정 (딥 그린)
+
+  // 타이포
+  --font-display: 'Noto Serif KR', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-body: 'Pretendard Variable', Pretendard, sans-serif;
+
+  // 스페이싱 리듬 (8px 기반)
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  --space-6: 6rem;
+
+  --content-width: 56rem;    // 리포트 본문 폭
+  --radius: 2px;             // 문서 느낌: 거의 직각
+}
+
+// 모노 라벨 (섹션 번호, 데이터 라벨용)
+@mixin mono-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+// 헤어라인 위 테두리
+@mixin rule-top($weight: 1px) {
+  border-top: $weight solid var(--hairline-strong);
+}
+
+// 리포트 섹션 등장 모션 (스태거는 --stagger-i 인덱스로)
+// 주의: CSS Modules가 animation-name을 모듈 단위로 스코핑하므로,
+// keyframes를 사용처와 같은 모듈에 함께 방출해야 한다 (@at-root).
+@mixin rise-in {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--stagger-i, 0) * 120ms);
+
+  @at-root {
+    @keyframes rise-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+}

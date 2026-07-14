@@ -1,0 +1,124 @@
+// SinceritySection.module.scss
+@use '../../styles/tokens' as *;
+
+.summary {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--hairline);
+  background: var(--paper-raised);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.summaryLabel {
+  @include mono-label;
+}
+
+.summaryTrack {
+  height: 8px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+}
+
+.summaryFill {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+}
+
+.summaryValue {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.pairs {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pair {
+  border: 1px solid var(--hairline);
+  background: var(--paper-raised);
+  padding: var(--space-2) var(--space-3);
+}
+
+.bubbleRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.bubble {
+  font-size: 0.9rem;
+
+  p {
+    background: var(--me-soft);
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.25rem;
+  }
+}
+
+.answer p {
+  background: var(--signal-soft);
+}
+
+.speaker {
+  @include mono-label;
+}
+
+.scoreRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.scoreTrack {
+  height: 5px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+}
+
+.scoreFill {
+  display: block;
+  height: 100%;
+
+  &.low { background: var(--signal); }
+  &.mid { background: var(--ink-soft); }
+  &.high { background: var(--ok); }
+}
+
+.scoreText {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+
+  &.low { color: var(--signal); }
+  &.mid { color: var(--ink-soft); }
+  &.high { color: var(--ok); }
+}
+
+.empty {
+  color: var(--ink-soft);
+}
+
+.caption {
+  @include mono-label;
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .bubbleRow {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+  }
+}
