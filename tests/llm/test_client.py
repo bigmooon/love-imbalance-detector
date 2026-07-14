@@ -1,8 +1,8 @@
 # tests/llm/test_client.py
 import pytest
-from llm.config import LLMConfig
-from llm.client import call_structured, LLMError, LLMAuthError
-from llm.schema import LLMJudgment, AxisJudgment
+from core.llm.config import LLMConfig
+from core.llm.client import call_structured, LLMError, LLMAuthError
+from core.llm.schema import LLMJudgment, AxisJudgment
 
 
 def _cfg(key="sk-test", retries=1):

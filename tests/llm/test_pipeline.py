@@ -1,9 +1,9 @@
 # tests/llm/test_pipeline.py
 import numpy as np
 import pandas as pd
-from llm.config import LLMConfig
-from llm.schema import AxisJudgment, LLMJudgment
-from llm import pipeline as pl
+from core.llm.config import LLMConfig
+from core.llm.schema import AxisJudgment, LLMJudgment
+from core.llm import pipeline as pl
 
 
 def _cfg():
@@ -45,7 +45,7 @@ def test_run_llm_analysis_wires_everything(monkeypatch):
 
 def test_max_messages_caps_retrieved_windows(monkeypatch):
     """config.max_messages가 작으면 retrieved 윈도우 수가 그에 맞게 제한된다."""
-    from llm.retrieval import AXIS_QUERIES, WINDOW_SIZE
+    from core.llm.retrieval import AXIS_QUERIES, WINDOW_SIZE
 
     fake_judgment = LLMJudgment(
         dominance=AxisJudgment(score=0.5, rationale="r", evidence=[]),

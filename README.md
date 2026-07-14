@@ -107,23 +107,22 @@ love-imbalance-detector
 │
 ├── app.py                  # Streamlit (레거시 데모)
 │
-├── features/
-│   ├── dominance.py        # 지배성 지표 계산
-│   ├── dependence.py       # 의존도 지표 계산
-│   └── presets.py          # 가중치 프리셋
+├── core/                   # 분석 엔진 (프레임워크 무의존, server·app 공용)
+│   ├── utils/
+│   │   ├── kakao_parser.py # 카카오톡 CSV 파싱 + 세션 분리
+│   │   └── text_utils.py   # 텍스트 전처리, 질문 판별
+│   ├── features/
+│   │   ├── dominance.py    # 지배성 지표 계산
+│   │   ├── dependence.py   # 의존도 지표 계산
+│   │   └── presets.py      # 가중치 프리셋
+│   ├── models/
+│   │   ├── hugging_face.py # 모델 로드 + 배치 추론 (lru_cache)
+│   │   └── emotion_labels.py # 감정 그룹 매핑
+│   ├── llm/                # 2-Tier LLM 하이브리드 (RAG + 판정)
+│   └── visualize/
+│       └── charts.py       # Plotly 차트 생성 (Streamlit용)
 │
-├── models/
-│   ├── hugging_face.py     # 모델 로드 + 배치 추론 (lru_cache)
-│   └── emotion_labels.py   # 감정 그룹 매핑
-│
-├── visualize/
-│   └── charts.py           # Plotly 차트 생성 (Streamlit용)
-│
-├── llm/                    # 2-Tier LLM 하이브리드 (RAG + 판정)
-│
-└── utils/
-    ├── kakao_parser.py     # 카카오톡 CSV 파싱 + 세션 분리
-    └── text_utils.py       # 텍스트 전처리, 질문 판별
+└── eval/                   # 리서치 (합성 벤치마크 + 지표)
 ```
 
 ### 흐름

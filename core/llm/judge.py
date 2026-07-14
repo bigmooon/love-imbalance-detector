@@ -9,8 +9,8 @@ def _squash(text: str) -> str:
     """모든 공백 제거 (비교 전용)."""
     return _WS.sub("", text)
 
-from llm.client import call_structured
-from llm.schema import LLMJudgment
+from core.llm.client import call_structured
+from core.llm.schema import LLMJudgment
 
 _SYSTEM_PROMPT = """당신은 카카오톡 대화를 분석하는 연애 관계 분석 전문가입니다.
 화자는 '나'와 '상대' 두 명입니다. 주어진 집계 통계와 검색된 근거 대화만 사용해

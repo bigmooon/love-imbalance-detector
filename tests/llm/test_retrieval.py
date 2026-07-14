@@ -1,7 +1,7 @@
 # tests/llm/test_retrieval.py
 import numpy as np
 import pandas as pd
-from llm.retrieval import build_windows, retrieve_for_axis, retrieve_evidence, AXIS_QUERIES
+from core.llm.retrieval import build_windows, retrieve_for_axis, retrieve_evidence, AXIS_QUERIES
 
 
 def _df(n_pairs=3):

@@ -1,5 +1,5 @@
 # llm/client.py
-from llm.config import LLMConfig
+from core.llm.config import LLMConfig
 
 
 class LLMError(Exception):

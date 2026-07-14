@@ -1,6 +1,6 @@
 # tests/llm/test_compare.py
-from llm.compare import compare_scores
-from llm.schema import AxisJudgment, LLMJudgment
+from core.llm.compare import compare_scores
+from core.llm.schema import AxisJudgment, LLMJudgment
 
 
 def _judgment(dom, dep):

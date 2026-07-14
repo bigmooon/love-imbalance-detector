@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
-from utils.text_utils import is_question
+from core.utils.text_utils import is_question
 
 
 def _get_partner(df, me):
@@ -96,7 +96,7 @@ def calc_qa_sincerity(df, me, sbert_model):
     me의 답변 성의도 - partner의 답변 성의도 차이 (-1~1).
     양수면 me가 더 성의 있게 답변하는 쪽 (= me가 더 의존적).
   """
-  from models.hugging_face import encode_sentences
+  from core.models.hugging_face import encode_sentences
 
   partner = _get_partner(df, me)
 
@@ -177,7 +177,7 @@ def _calc_pair_similarity(pairs, sbert_model):
   Returns:
     (mean_similarity, per_pair_scores)
   """
-  from models.hugging_face import encode_sentences
+  from core.models.hugging_face import encode_sentences
 
   if not pairs:
     return 0.5, []

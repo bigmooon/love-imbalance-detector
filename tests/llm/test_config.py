@@ -1,5 +1,5 @@
 # tests/llm/test_config.py
-from llm.config import LLMConfig, load_llm_config
+from core.llm.config import LLMConfig, load_llm_config
 
 
 def test_load_uses_override_key(monkeypatch):

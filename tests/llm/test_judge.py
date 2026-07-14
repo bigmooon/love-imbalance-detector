@@ -1,6 +1,6 @@
 # tests/llm/test_judge.py
-from llm.judge import build_prompt, filter_hallucinated_evidence
-from llm.schema import Evidence, AxisJudgment, LLMJudgment
+from core.llm.judge import build_prompt, filter_hallucinated_evidence
+from core.llm.schema import Evidence, AxisJudgment, LLMJudgment
 
 
 def _retrieved():

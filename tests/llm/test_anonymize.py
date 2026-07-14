@@ -1,6 +1,6 @@
 # tests/llm/test_anonymize.py
 import pandas as pd
-from llm.anonymize import anonymize_messages
+from core.llm.anonymize import anonymize_messages
 
 
 def _df():

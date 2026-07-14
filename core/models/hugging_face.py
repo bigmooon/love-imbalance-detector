@@ -3,7 +3,7 @@ from functools import lru_cache
 import numpy as np
 from transformers import pipeline
 from sentence_transformers import SentenceTransformer
-from models.emotion_labels import LABEL2ID, get_emotion_group, ACTIVE_PRESET
+from core.models.emotion_labels import LABEL2ID, get_emotion_group, ACTIVE_PRESET
 
 BATCH_SIZE = 64
 SBERT_MODEL_NAME = "snunlp/KR-SBERT-V40K-klueNLI-augSTS"

@@ -1,5 +1,5 @@
 # llm/compare.py
-from llm.schema import LLMJudgment
+from core.llm.schema import LLMJudgment
 
 
 def _one(tier1_score: float, llm_score: float, threshold: float) -> dict:

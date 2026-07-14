@@ -8,7 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from utils.kakao_parser import parse_kakao_chat
+from core.utils.kakao_parser import parse_kakao_chat
 from server.analysis import AnalysisOptions, TOTAL_STEPS, run_analysis
 from server.serialize import build_report_payload
 from server.schemas import AnalyzeRequest, JobStatus, UploadSummary

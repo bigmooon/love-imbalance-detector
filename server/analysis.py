@@ -5,20 +5,20 @@ from datetime import date
 
 logger = logging.getLogger(__name__)
 
-from utils.kakao_parser import split_sessions
-from features.presets import WEIGHT_PRESETS
-from features.dominance import (
+from core.utils.kakao_parser import split_sessions
+from core.features.presets import WEIGHT_PRESETS
+from core.features.dominance import (
     calc_start_ratio, calc_end_ratio, calc_participation_ratio,
     calc_emotion_dominance, compute_dominance_features,
 )
-from features.dependence import (
+from core.features.dependence import (
     calc_reply_time_asymmetry, calc_double_text_ratio,
     calc_qa_sincerity, compute_dependence_index,
 )
-from llm.config import load_llm_config
-from llm.client import LLMError
-from llm.pipeline import run_llm_analysis
-from models.hugging_face import encode_sentences
+from core.llm.config import load_llm_config
+from core.llm.client import LLMError
+from core.llm.pipeline import run_llm_analysis
+from core.models.hugging_face import encode_sentences
 
 PROGRESS_LABELS = [
     "데이터 준비 중",
@@ -72,7 +72,7 @@ def run_analysis(
     # Step 1: 모델 로딩 (미주입 시 실제 모델 — lazy import로 테스트 부담 제거)
     step(1)
     if classifier is None or sbert_model is None:
-        from models.hugging_face import load_emotion_classifier, load_sbert_model
+        from core.models.hugging_face import load_emotion_classifier, load_sbert_model
         classifier = classifier or load_emotion_classifier()
         sbert_model = sbert_model or load_sbert_model()
 

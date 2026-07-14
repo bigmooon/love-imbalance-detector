@@ -107,7 +107,7 @@ def test_box_stats_empty_series_returns_zeros():
 
 
 def test_llm_full(analysis_result):
-    from llm.schema import LLMJudgment, AxisJudgment
+    from core.llm.schema import LLMJudgment, AxisJudgment
     judgment = LLMJudgment(
         dominance=AxisJudgment(score=0.7, rationale="r", evidence=[]),
         dependence=AxisJudgment(score=0.5, rationale="r", evidence=[]),

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from llm.config import LLMConfig
+from core.llm.config import LLMConfig
 from eval.synth import (
   LEVELS,
   SCENARIOS,

@@ -1,6 +1,6 @@
 from eval.label_maps import KOTE_TO_GROUP, VALID_GROUPS, kote_to_group
 
-from models.emotion_labels import EMOTION_GROUPS
+from core.models.emotion_labels import EMOTION_GROUPS
 
 
 def test_covers_all_44_kote_labels():

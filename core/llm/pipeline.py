@@ -1,8 +1,8 @@
 # llm/pipeline.py
-from llm.anonymize import anonymize_messages
-from llm.retrieval import build_windows, retrieve_evidence, AXIS_QUERIES, WINDOW_SIZE
-from llm.judge import judge
-from llm.compare import compare_scores
+from core.llm.anonymize import anonymize_messages
+from core.llm.retrieval import build_windows, retrieve_evidence, AXIS_QUERIES, WINDOW_SIZE
+from core.llm.judge import judge
+from core.llm.compare import compare_scores
 
 
 def _build_summary(tier1_result: dict) -> dict:

@@ -1,7 +1,7 @@
 # tests/llm/test_schema.py
 import pytest
 from pydantic import ValidationError
-from llm.schema import Evidence, AxisJudgment, LLMJudgment
+from core.llm.schema import Evidence, AxisJudgment, LLMJudgment
 
 
 def _valid_axis():

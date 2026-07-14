@@ -1,9 +1,9 @@
 import pandas as pd
-from utils.text_utils import is_system_message, is_non_text, clean_text
+from core.utils.text_utils import is_system_message, is_non_text, clean_text
 
 SESSION_END_MINUTES = 30
 MAX_USERS = 2
-BOT = ["플레이봇"]
+BOT = ["플레이봇", "방구석낚시꾼"]
 
 def parse_kakao_chat(file_path):
   df = pd.read_csv(file_path, header=0, dtype=str, keep_default_na=False, encoding="utf-8-sig")
@@ -30,7 +30,7 @@ def parse_kakao_chat(file_path):
 
   users = df["User"].unique().tolist()
   if len(users) > MAX_USERS:
-    raise ValueError(f"[Kakao Parser] 최대 {MAX_USERS}명까지 지원합니다.")
+    raise ValueError(f"[Kakao Parser] 최대 {MAX_USERS}명까지 지원합니다. (감지된 참여자: {users})")
   elif len(users) < 2:
     raise ValueError("[Kakao Parser] 대화에는 최소 2명의 참여자가 필요합니다.")
   

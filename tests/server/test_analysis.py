@@ -65,7 +65,7 @@ def test_run_analysis_empty_range_raises(raw_df):
 def test_llm_error_preserves_tier1(raw_df, monkeypatch):
     """LLMError 발생 시 llm={"error": ...}, Tier1 결과는 보존."""
     import server.analysis as analysis_mod
-    from llm.client import LLMError
+    from core.llm.client import LLMError
 
     def boom(*args, **kwargs):
         raise LLMError("API 호출 실패")

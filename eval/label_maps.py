@@ -5,7 +5,7 @@ eval/datasets.py의 load_kote()가 로드 시점에 즉시 검증한다.
 "neutral"은 6그룹 어디에도 속하지 않아 벤치마크에서 제외하는 라벨.
 """
 
-from models.emotion_labels import EMOTION_GROUPS
+from core.models.emotion_labels import EMOTION_GROUPS
 
 VALID_GROUPS = set(EMOTION_GROUPS.keys()) | {"neutral"}
 

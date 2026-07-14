@@ -1,26 +1,26 @@
 # app.py
 import streamlit as st
 
-from utils.kakao_parser import parse_kakao_chat, split_sessions
-from models.hugging_face import load_emotion_classifier, load_sbert_model
-from features.dominance import (
+from core.utils.kakao_parser import parse_kakao_chat, split_sessions
+from core.models.hugging_face import load_emotion_classifier, load_sbert_model
+from core.features.dominance import (
   calc_start_ratio, calc_end_ratio, calc_participation_ratio,
   calc_emotion_dominance, compute_dominance_features,
 )
-from features.dependence import (
+from core.features.dependence import (
   calc_reply_time_asymmetry, calc_double_text_ratio,
   calc_qa_sincerity, compute_dependence_index,
 )
-from visualize.charts import (
+from core.visualize.charts import (
   create_radar_chart, create_timeline_chart,
   create_reply_time_chart, create_emotion_chart,
 )
-from llm.config import load_llm_config
-from llm.client import LLMError
-from llm.pipeline import run_llm_analysis
-from llm.ui import render_llm_section
-from models.hugging_face import encode_sentences
-from features.presets import WEIGHT_PRESETS
+from core.llm.config import load_llm_config
+from core.llm.client import LLMError
+from core.llm.pipeline import run_llm_analysis
+from core.llm.ui import render_llm_section
+from core.models.hugging_face import encode_sentences
+from core.features.presets import WEIGHT_PRESETS
 
 # ── 상수 ──────────────────────────────────────────────────────────────────
 PAGE_TITLE = "💘 연애 권력 불균형 진단"

@@ -1,6 +1,6 @@
 import pandas as pd
-from models.emotion_labels import EMOTION_GROUPS
-from models.hugging_face import classify_emotions
+from core.models.emotion_labels import EMOTION_GROUPS
+from core.models.hugging_face import classify_emotions
 
 def _get_partner(df, me):
   users = df["User"].unique().tolist()
